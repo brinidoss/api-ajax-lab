@@ -1,6 +1,8 @@
 const postContainer = document.querySelector('.post-container');
 const subredditForm = document.querySelector('.subreddit-form');
+const numForm = document.querySelector('.number-of-posts');
 
+//creating cards and adding the api data to them
 function createPost(post) {
     //create the container
     const postCard = document.createElement('div');
@@ -19,7 +21,7 @@ function createPost(post) {
     postImage.setAttribute('src', imageLink);  
     postImage.setAttribute('alt', 'image not available');
     postCard.appendChild(postImage);
-    console.log(postImage);
+    //console.log(postImage);
 
     //add link
     const postLink = document.createElement('a');
@@ -31,17 +33,8 @@ function createPost(post) {
     postCard.appendChild(postLink);
 }
 
-function changeSubreddit (subreddit) {
-    fetch(`https://www.reddit.com/r/${subreddit}/.json`).then((response) => {
-        return response.json();
-    }).then((data) => {
-        const posts = data.data.children;
-        posts.forEach((post) => {
-            createPost(post);
-    })
-});
-}
-
+//fetch default aww subreddit api
+function displayDefaultSubreddit () {
 fetch('https://www.reddit.com/r/aww/.json').then((response) => {
     return response.json();
 }).then((data) => {
@@ -49,6 +42,33 @@ fetch('https://www.reddit.com/r/aww/.json').then((response) => {
     posts.forEach((post) => {
         createPost(post);
     })
+});
+}
+
+//fetch different api
+function changeSubreddit (subreddit) {
+    removePosts();
+    
+    fetch(`https://www.reddit.com/r/${subreddit}/.json`).then((response) => {
+        return response.json();
+    }).then((data) => {
+        const posts = data.data.children;
+        posts.forEach((post) => {
+            createPost(post);
+        })
+    });
+}
+
+//remove old posts upon changing the api
+function removePosts () {
+    while (postContainer.firstChild) {
+        postContainer.removeChild(postContainer.firstChild);
+    }
+}
+
+//load the default aww subreddit
+window.addEventListener('load', (event) => {
+    displayDefaultSubreddit();
 });
 
 //change the subreddit
@@ -58,4 +78,26 @@ subredditForm.addEventListener('submit', (event) => {
     const newSubreddit = formData.get('subreddit');
     console.log(newSubreddit);
     changeSubreddit(newSubreddit);
+})
+
+function displayX () {
+    const formData = new FormData(numForm);
+    const desiredNum = parseInt(formData.get('desired-num'));
+    console.log(desiredNum);
+    console.log(typeof desiredNum);
+    
+    fetch(`https://www.reddit.com/r/aww/.json`).then((response) => {
+        return response.json();
+    }).then((data) => {
+        const posts = data.data.children;
+        posts.slice(0, desiredNum).forEach((post, ) => {
+                createPost(post); 
+           })
+    });
+}
+
+numForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    removePosts();
+    displayX();
 })
